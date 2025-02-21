@@ -79,9 +79,9 @@ export function Sidebar() {
             </Link>
           ))}
         </div>
-        <div className="px-3">
-          <UsageProgress />
-        </div>
+      </div>
+      <div className="px-3">
+        <UsageProgress />
       </div>
     </div>
   );

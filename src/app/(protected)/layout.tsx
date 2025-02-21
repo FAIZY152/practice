@@ -33,7 +33,6 @@ export default function DashboardLayout({
         <div className="w-[20%]">
           <Sidebar />
         </div>
-
         <div className="w-[80%]">{children}</div>
         <div className="w-[5%] mt-3">
           <UserAccount />

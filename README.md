@@ -42,19 +42,4 @@ DATABASE_URL=mongodb+srv://your_mongo_url
 npm run dev  # Start the development server
 ```
 
-## 🌐 Deployment
-Deploy easily on **Vercel** or **Netlify**:
-
-```sh
-vercel deploy
-```
-
-## 📸 Screenshots
-(Include some images of the UI here)
-
-## 📜 License
-This project is open-source and available under the [MIT License](LICENSE).
-
-## ⭐ Contribute & Support
-Feel free to fork, submit PRs, or raise issues. If you find this project helpful, give it a ⭐!
 

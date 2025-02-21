@@ -7,7 +7,6 @@ import {
   MessageSquare,
   ImageIcon,
   Code,
-  Settings,
   SearchCode,
 } from "lucide-react";
 
@@ -50,11 +49,6 @@ const routes = [
     icon: SearchCode,
     color: "text-yellow-600",
     href: "/codeReviwer",
-  },
-  {
-    label: "Settings",
-    icon: Settings,
-    href: "/setting",
   },
 ];
 

@@ -1,19 +1,19 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import dynamic from "next/dynamic";
+import axios from "axios";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
 import { toast } from "sonner";
-import dynamic from "next/dynamic";
-import "tailwind-scrollbar";
-import { Button } from "@/components/ui/button";
+import { Form, FormField, FormItem, FormControl } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+
 import useUserStore from "@/store/UserStore";
 import { EmptyState } from "./Empty";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const BotAvatar = dynamic(() => import("../other/BotAvatar"), { ssr: false });
 const Loader = dynamic(() => import("./Loader"), { ssr: false });
@@ -36,12 +36,15 @@ type FormData = z.infer<typeof formSchema>;
 
 export default function ChatInterface() {
   const { user, setUsageCount, usageCount } = useUserStore.getState();
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messages.length > 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages]);
 
   const form = useForm<FormData>({
@@ -81,7 +84,7 @@ export default function ChatInterface() {
                       <li key={i} className="flex items-start gap-2">
                         <span className="h-2 w-2 mt-2 rounded-full bg-purple-400" />
                         <span className="text-gray-700">
-                          {point.replace("*", "")}
+                          {point.replace("*", "").trim()}
                         </span>
                       </li>
                     ))}
@@ -101,46 +104,63 @@ export default function ChatInterface() {
   }, []);
 
   const onSubmit = async (values: FormData) => {
-    setIsLoading(true);
-
-    // Get user data from Zustand
-
     if (!user?.id) {
-      alert("Please log in to continue.");
+      toast.error("Please log in to continue.");
       return;
     }
-    const userMessage: ChatMessage = { role: "user", content: values.chat };
 
+    setIsLoading(true);
+
+    // ✅ Include the new user message before sending the request
+    const userMessage: ChatMessage = { role: "user", content: values.chat };
     const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
+
+    console.log(
+      "🔹 Sending Request to API:",
+      JSON.stringify(
+        {
+          userId: user.id,
+          messages: updatedMessages.map(({ role, content }) => ({
+            role: role === "assistant" ? "model" : role, // ✅ Convert "assistant" to "model"
+            parts: [{ text: content }], // ✅ Match Google Gemini API format
+          })),
+        },
+        null,
+        2
+      )
+    );
 
     try {
       const response = await axios.post("/api/conversation", {
-        userId: user?.id,
+        userId: user.id,
         messages: updatedMessages.map(({ role, content }) => ({
           role: role === "assistant" ? "model" : role,
-          content,
+          parts: [{ text: content }],
         })),
       });
 
-      if (response.data.error) throw new Error(response.data.error);
+      if (response.data.error) {
+        throw new Error(response.data.error);
+      }
 
       if (
         response.data.error === "Free limit reached, please upgrade" ||
         usageCount >= 5
       ) {
-        window.location.href = "/pricing"; // 🚀 Redirect to upgrade page
+        window.location.href = "/pricing"; // Redirect to pricing page
       } else {
+        // ✅ Get AI Response from Gemini API
         const botMessage: ChatMessage = {
           role: "model",
-          content: response.data.content,
+          content: response.data.content, // ✅ Extract AI response
         };
-        setUsageCount(usageCount + 1);
-        setMessages((prev) => [...prev, botMessage]);
 
+        setUsageCount(usageCount + 1);
+        setMessages([...updatedMessages, botMessage]); // ✅ Append AI response
         form.reset();
       }
     } catch (error) {
+      console.error("❌ API Error:", error);
       toast.error(
         error instanceof Error ? error.message : "An unexpected error occurred"
       );

@@ -8,14 +8,22 @@ Assist users by providing clear, accurate, and helpful responses.
 Maintain a friendly and conversational tone.
 `;
 
+<<<<<<< HEAD
 
+=======
+// ✅ Load Google Gemini API Key
+>>>>>>> c3638ed (coversation)
 const apiKey = process.env.GOOGLE_GEMENI_API;
 if (!apiKey) {
   console.error("❌ GOOGLE_GEMINI_API key is missing from .env.local");
   throw new Error("Google API key is missing.");
 }
 
+<<<<<<< HEAD
 
+=======
+// ✅ Initialize Gemini AI
+>>>>>>> c3638ed (coversation)
 const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
@@ -26,7 +34,11 @@ export async function POST(req: Request) {
 
     const { userId, messages } = body;
 
+<<<<<<< HEAD
   
+=======
+    // ✅ Validate input
+>>>>>>> c3638ed (coversation)
     if (!userId) {
       return NextResponse.json(
         { error: "User ID is required." },
@@ -40,7 +52,11 @@ export async function POST(req: Request) {
       );
     }
 
+<<<<<<< HEAD
  
+=======
+    // ✅ Format messages for Gemini API
+>>>>>>> c3638ed (coversation)
     const formattedMessages = [
       { role: "user", parts: [{ text: SYSTEM_PROMPT }] }, // System instruction
       ...messages.map((msg) => ({
@@ -48,9 +64,19 @@ export async function POST(req: Request) {
         parts: [{ text: msg.content }],
       })),
     ];
+<<<<<<< HEAD
 
   
 
+=======
+
+    console.log(
+      "🔹 Sending Request to Gemini API:",
+      JSON.stringify({ contents: formattedMessages }, null, 2)
+    );
+
+    // ✅ Send request to Gemini API
+>>>>>>> c3638ed (coversation)
     const result = await model.generateContent({
       contents: formattedMessages,
     });
@@ -58,9 +84,15 @@ export async function POST(req: Request) {
     const response = await result.response;
     const botResponse = response.text() || "I don't understand.";
 
+<<<<<<< HEAD
     
 
    
+=======
+    console.log("✅ AI Response:", botResponse);
+
+    // ✅ API Limit Check
+>>>>>>> c3638ed (coversation)
     const limitResponse = await checkApiLimit(userId);
     if (limitResponse) return limitResponse;
 

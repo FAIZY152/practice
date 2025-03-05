@@ -36,7 +36,9 @@ export default function CodeGenerator() {
     try {
       const response = await axios.post("/api/codeReview", {
         userId: user?.id, // ✅ Send userId in request
-        prompt: code,
+        messages: [
+          { role: "user", content: `Please review this code:\n\n${code}` }, // ✅ Ask Gemini to review the code
+        ],
       });
 
       if (
@@ -45,12 +47,12 @@ export default function CodeGenerator() {
       ) {
         window.location.href = "/pricing"; // 🚀 Redirect to upgrade page
       } else {
-        setGeneratedCode(response.data.generatedCode);
+        setGeneratedCode(response.data.content); // ✅ Extract reviewed code response
         setUsageCount(usageCount + 1);
       }
     } catch (error) {
-      setGeneratedCode("❌ Error generating code.");
-      console.error(error);
+      setGeneratedCode("❌ Error generating code review.");
+      console.error("API Error:", error);
     } finally {
       setLoading(false);
     }

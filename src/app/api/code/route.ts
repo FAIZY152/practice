@@ -1,62 +1,77 @@
-import { checkApiLimit } from "@/lib/api-limit";
 import { NextResponse } from "next/server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { checkApiLimit } from "@/lib/api-limit";
 
-const SYSTEM_INSTRUCTION = {
-  role: "user", // Gemini does not support "system", so use "user" instead.
-  parts: [
-    {
-      text: "You are a Code Generator. A helpful assistant that can help with code generation and debugging. Always provide code snippets when applicable.",
-    },
-  ],
-};
+const SYSTEM_PROMPT = `
+You are an advanced AI-powered Code Generator.
+Your task is to generate high-quality, optimized, and well-structured code based on user requests.
+Always provide full code snippets when applicable, and ensure proper syntax and best practices.
+`;
+
+
+const apiKey = process.env.GOOGLE_GEMENI_API;
+if (!apiKey) {
+  console.error("❌ GOOGLE_GEMINI_API key is missing from .env.local");
+  throw new Error("Google API key is missing.");
+}
+
+
+const genAI = new GoogleGenerativeAI(apiKey);
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { messages, userId } = body;
+    console.log("📥 Received Payload:", JSON.stringify(body, null, 2));
 
+    const { userId, messages } = body;
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: "User ID is required." },
+        { status: 400 }
+      );
+    }
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json(
-        { error: "Messages array is required" },
+        { error: "Messages array is required." },
         { status: 400 }
       );
     }
 
-    // Map roles correctly: Gemini supports only "user" and "model"
+   
     const formattedMessages = [
-      SYSTEM_INSTRUCTION, // Set chatbot instruction
+      { role: "user", parts: [{ text: SYSTEM_PROMPT }] }, // System instruction
       ...messages.map((msg) => ({
-        role: msg.role === "assistant" ? "model" : "user", // Convert "assistant" to "model"
+        role: msg.role === "assistant" ? "model" : "user",
         parts: [{ text: msg.content }],
       })),
     ];
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GOOGLE_GEMENI_API}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: formattedMessages }),
-      }
+    console.log(
+      "🔹 Sending Request to Gemini API:",
+      JSON.stringify({ contents: formattedMessages }, null, 2)
     );
 
-    const data = await response.json();
+ 
+    const result = await model.generateContent({
+      contents: formattedMessages,
+    });
 
-    if (data.error) {
-      throw new Error(data.error.message);
-    }
+    const response = await result.response;
+    const botResponse = response.text() || "I don't understand.";
 
-    const botResponse =
-      data.candidates?.[0]?.content?.parts?.[0]?.text || "I don't understand.";
-      
+    console.log("✅ AI Response:", botResponse);
+
+    
     const limitResponse = await checkApiLimit(userId);
     if (limitResponse) return limitResponse;
 
     return NextResponse.json({ content: botResponse });
-  } catch (error) {
-    console.error("Gemini API Chatbot Error:", error);
+  } catch (error: any) {
+    console.error("❌ Gemini API Error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Google Gemini API Error. Check your API key and permissions." },
       { status: 500 }
     );
   }

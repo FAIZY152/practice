@@ -3,46 +3,68 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { checkApiLimit } from "@/lib/api-limit";
 
 const SYSTEM_PROMPT = `
-You are an AI-powered code generator.
-Generate high-quality, optimized, and well-structured code based on user input.
-Ensure proper syntax, best practices, and modularity in the generated code.
+You are an AI chatbot.
+Assist users by providing clear, accurate, and helpful responses.
+Maintain a friendly and conversational tone.
 `;
 
-// Initialize Google Gemini API
-const apiKey = process.env.CODE_REVIWER_API;
+
+const apiKey = process.env.GOOGLE_GEMENI_API;
 if (!apiKey) {
   console.error("❌ GOOGLE_GEMINI_API key is missing from .env.local");
   throw new Error("Google API key is missing.");
 }
 
+
 const genAI = new GoogleGenerativeAI(apiKey);
-const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { userId, prompt } = body;
-    if (!prompt) {
+    console.log("📥 Received Payload:", JSON.stringify(body, null, 2));
+
+    const { userId, messages } = body;
+
+  
+    if (!userId) {
       return NextResponse.json(
-        { error: "Prompt is required." },
+        { error: "User ID is required." },
+        { status: 400 }
+      );
+    }
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return NextResponse.json(
+        { error: "Messages array is required." },
         { status: 400 }
       );
     }
 
-    // Create AI prompt
-    const fullPrompt = `${SYSTEM_PROMPT}\n\nUser Prompt:\n${prompt}`;
+ 
+    const formattedMessages = [
+      { role: "user", parts: [{ text: SYSTEM_PROMPT }] }, // System instruction
+      ...messages.map((msg) => ({
+        role: msg.role === "assistant" ? "model" : "user",
+        parts: [{ text: msg.content }],
+      })),
+    ];
 
-    // Send request to Google Gemini API
+  
+
     const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
+      contents: formattedMessages,
     });
 
     const response = await result.response;
-    const generatedCode = response.text();
+    const botResponse = response.text() || "I don't understand.";
 
+    
+
+   
     const limitResponse = await checkApiLimit(userId);
     if (limitResponse) return limitResponse;
-    return NextResponse.json({ generatedCode });
+
+    return NextResponse.json({ content: botResponse });
   } catch (error: any) {
     console.error("❌ Gemini API Error:", error);
     return NextResponse.json(

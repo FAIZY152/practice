@@ -22,7 +22,7 @@ const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    console.log("📥 Received Payload:", JSON.stringify(body, null, 2));
+    
 
     const { userId, messages } = body;
 
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
     const response = await result.response;
     const botResponse = response.text() || "I don't understand.";
 
-    console.log("✅ AI Response:", botResponse);
+  
 
     
     const limitResponse = await checkApiLimit(userId);

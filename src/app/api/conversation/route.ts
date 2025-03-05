@@ -1,14 +1,10 @@
-import { checkApiLimit } from "@/lib/api-limit";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
-const SYSTEM_INSTRUCTION = {
-  role: "user", // Gemini does not support "system", so use "user" instead.
-  parts: [
-    { text: "You are an AI chatbot. Assist the user with their questions." },
-  ],
-};
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API);
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-export async function POST(req: Request) {
+export async function POST(req) {
   try {
     const body = await req.json();
     const { messages, userId } = body;
@@ -20,37 +16,12 @@ export async function POST(req: Request) {
       );
     }
 
-    // Map roles correctly: Gemini supports only "user" and "model"
-    const formattedMessages = [
-      SYSTEM_INSTRUCTION, // Set chatbot instruction
-      ...messages.map((msg) => ({
-        role: msg.role === "assistant" ? "model" : "user", // Convert "assistant" to "model"
-        parts: [{ text: msg.content }],
-      })),
-    ];
+    const formattedMessages = messages.map((msg) => msg.content).join("\n");
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GOOGLE_GEMENI_API}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: formattedMessages }),
-      }
-    );
+    const result = await model.generateContent(formattedMessages);
+    const response = await result.response.text();
 
-    const data = await response.json();
-
-    if (data.error) {
-      throw new Error(data.error.message);
-    }
-
-    const botResponse =
-      data.candidates?.[0]?.content?.parts?.[0]?.text || "I don't understand.";
-
-    const limitResponse = await checkApiLimit(userId);
-    if (limitResponse) return limitResponse;
-
-    return NextResponse.json({ content: botResponse });
+    return NextResponse.json({ content: response });
   } catch (error) {
     console.error("Gemini API Chatbot Error:", error);
     return NextResponse.json(
@@ -59,3 +30,4 @@ export async function POST(req: Request) {
     );
   }
 }
+

@@ -38,6 +38,7 @@ export default function ImageGenerator() {
     e.preventDefault();
     if (!prompt.trim()) return;
     setLoading(true);
+    setImageUrl(null);
 
     try {
       const response = await fetch("/api/image", {
@@ -50,14 +51,29 @@ export default function ImageGenerator() {
       const data = await response.json();
       if (data.error) throw new Error(data.error);
 
-      if (
-        data.error === "Free limit reached, please upgrade" ||
-        usageCount >= 5
-      ) {
-        window.location.href = "/pricing"; // 🚀 Redirect to upgrade page
-      } else {
-        setUsageCount(usageCount + 1);
+      if (usageCount >= 5) {
+        window.location.href = "/pricing";
+        return;
+      }
+
+      setUsageCount(usageCount + 1);
+
+      
+      const checkImage = async (url: string, retries = 5) => {
+        for (let i = 0; i < retries; i++) {
+          const res = await fetch(url, { method: "HEAD" });
+          if (res.ok) return true;
+          await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2s
+        }
+        return false;
+      };
+
+      
+      const isReady = await checkImage(data.url);
+      if (isReady) {
         setImageUrl(data.url);
+      } else {
+        throw new Error("Image is not ready yet. Try again.");
       }
     } catch (error) {
       console.error("Error generating image:", error);

@@ -115,21 +115,6 @@ export default function ChatInterface() {
     const userMessage: ChatMessage = { role: "user", content: values.chat };
     const updatedMessages = [...messages, userMessage];
 
-    console.log(
-      "🔹 Sending Request to API:",
-      JSON.stringify(
-        {
-          userId: user.id,
-          messages: updatedMessages.map(({ role, content }) => ({
-            role: role === "assistant" ? "model" : role, // ✅ Convert "assistant" to "model"
-            parts: [{ text: content }], // ✅ Match Google Gemini API format
-          })),
-        },
-        null,
-        2
-      )
-    );
-
     try {
       const response = await axios.post("/api/conversation", {
         userId: user.id,
@@ -170,14 +155,14 @@ export default function ChatInterface() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-4 space-y-6">
-      <div className="flex items-center gap-3 bg-white p-4 rounded-lg shadow-sm">
-        <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
-          <MessageCircle className="w-6 h-6 text-purple-600" />
+    <div className="w-full max-w-6xl mx-auto p-5 sm:p-4 md:p-6 space-y-5 sm:space-y-6 transition-all duration-200">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-white p-3 sm:p-4 rounded-lg shadow-sm">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+          <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
         </div>
         <div>
-          <h1 className="text-2xl font-semibold">AI Assistant</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="text-xl sm:text-2xl font-semibold">AI Assistant</h1>
+          <p className="text-xs sm:text-sm text-gray-500">
             Ask me anything about any topic
           </p>
         </div>
@@ -194,7 +179,7 @@ export default function ChatInterface() {
                   <Input
                     disabled={isLoading}
                     placeholder="Ask me anything..."
-                    className="bg-white shadow-sm border-0 focus-visible:ring-purple-500"
+                    className="bg-white shadow-sm border-0 focus-visible:ring-purple-500 h-10 sm:h-12"
                     {...field}
                   />
                 </FormControl>
@@ -204,13 +189,13 @@ export default function ChatInterface() {
           <Button
             disabled={isLoading}
             type="submit"
-            className="bg-purple-600 hover:bg-purple-700 shadow-sm">
+            className="bg-purple-600 hover:bg-purple-700 shadow-sm h-10 sm:h-12 px-3 sm:px-4 whitespace-nowrap">
             {isLoading ? "Thinking..." : "Ask"}
           </Button>
         </form>
       </Form>
 
-      <div className="space-y-4 min-h-[300px] max-h-[600px] overflow-y-auto rounded-lg p-4 bg-gray-50 custom-scrollbar">
+      <div className="space-y-4 min-h-[300px] max-h-[calc(100vh-250px)] overflow-y-auto rounded-lg p-2 sm:p-4 bg-gray-50 custom-scrollbar">
         {messages.length === 0 && !isLoading && <EmptyState />}
         {isLoading && <Loader />}
 
@@ -219,24 +204,28 @@ export default function ChatInterface() {
             <div
               key={index}
               ref={index === messages.length - 1 ? messagesEndRef : null}
-              className={`flex gap-x-4 ${
+              className={`flex gap-x-2 sm:gap-x-4 ${
                 message.role === "user" ? "flex-row-reverse" : ""
               }`}>
               {message.role === "user" ? (
-                <Avatar className="w-8 h-8 bg-purple-600">
-                  <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+                <Avatar className="w-6 h-6 sm:w-8 sm:h-8 bg-purple-600 shrink-0">
+                  <AvatarFallback>
+                    {user?.name?.charAt(0) || "U"}
+                  </AvatarFallback>
                 </Avatar>
               ) : (
-                <BotAvatar />
+                <div className="shrink-0">
+                  <BotAvatar />
+                </div>
               )}
               <div
-                className={`flex-1 p-6 rounded-lg ${
+                className={`flex-1 p-3 sm:p-6 rounded-lg ${
                   message.role === "user"
                     ? "bg-purple-600 text-white"
                     : "bg-white shadow-sm"
                 }`}>
                 {message.role === "user" ? (
-                  <p>{message.content}</p>
+                  <p className="text-sm sm:text-base">{message.content}</p>
                 ) : (
                   formatMessage(message.content)
                 )}

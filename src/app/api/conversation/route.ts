@@ -32,8 +32,11 @@ export async function POST(req: Request) {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
    
 =======
+=======
+>>>>>>> e67d118 (changes)
     // ✅ Ensure correct message structure for Gemini API
 >>>>>>> c3638ed (coversation)
     const formattedMessages = messages.map((msg) => ({

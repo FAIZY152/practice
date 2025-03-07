@@ -8,24 +8,40 @@ Generate only code based on the given prompt, without explanations or additional
 Ensure the code is complete, syntactically correct, and follows best practices.
 `;
 
+<<<<<<< HEAD
 
+=======
+// ✅ Load Google Gemini API Key
+>>>>>>> e67d118 (changes)
 const apiKey = process.env.GOOGLE_GEMENI_API;
 if (!apiKey) {
   console.error("❌ GOOGLE_GEMINI_API key is missing from .env.local");
   throw new Error("Google API key is missing.");
 }
 
+<<<<<<< HEAD
 
+=======
+// ✅ Initialize Gemini AI
+>>>>>>> e67d118 (changes)
 const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+<<<<<<< HEAD
     
 
     const { userId, messages } = body;
 
+=======
+    console.log("📥 Received Payload:", JSON.stringify(body, null, 2));
+
+    const { userId, messages } = body;
+
+    // ✅ Validate input
+>>>>>>> e67d118 (changes)
     if (!userId) {
       return NextResponse.json(
         { error: "User ID is required." },
@@ -39,7 +55,11 @@ export async function POST(req: Request) {
       );
     }
 
+<<<<<<< HEAD
    
+=======
+    // ✅ Format messages for Gemini API
+>>>>>>> e67d118 (changes)
     const formattedMessages = [
       { role: "user", parts: [{ text: SYSTEM_PROMPT }] }, // System instruction
       ...messages.map((msg) => ({
@@ -53,7 +73,11 @@ export async function POST(req: Request) {
       JSON.stringify({ contents: formattedMessages }, null, 2)
     );
 
+<<<<<<< HEAD
  
+=======
+    // ✅ Send request to Gemini API
+>>>>>>> e67d118 (changes)
     const result = await model.generateContent({
       contents: formattedMessages,
     });
@@ -61,9 +85,15 @@ export async function POST(req: Request) {
     const response = await result.response;
     const botResponse = response.text() || "I don't understand.";
 
+<<<<<<< HEAD
   
 
     
+=======
+    console.log("✅ AI Response:", botResponse);
+
+    // ✅ API Limit Check
+>>>>>>> e67d118 (changes)
     const limitResponse = await checkApiLimit(userId);
     if (limitResponse) return limitResponse;
 

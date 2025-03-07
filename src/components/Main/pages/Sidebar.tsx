@@ -58,12 +58,11 @@ interface SidebarProps {
 }
 
 export function Sidebar({ className }: SidebarProps) {
-  const pathname = usePathname(); // ✅ Replaces useRouter()
+  const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
 
-  // Track window size and update mobile state
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);

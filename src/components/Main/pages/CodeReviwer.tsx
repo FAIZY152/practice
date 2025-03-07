@@ -9,6 +9,7 @@ import rehypeHighlight from "rehype-highlight";
 import axios from "axios";
 import useUserStore from "@/store/UserStore";
 import { toast } from "sonner";
+import { Code, Copy, Loader2 } from "lucide-react";
 
 export default function CodeGenerator() {
   // Get user data and usage count from global store
@@ -67,13 +68,16 @@ export default function CodeGenerator() {
   }
 
   return (
-    <main className="flex flex-col gap-6 w-full mx-auto p-6 text-white  min-h-screen">
+    <main className="flex flex-col lg:flex-row gap-4 md:gap-6 w-full mx-auto p-3 sm:p-4 md:p-6 text-white min-h-screen">
       {/* Left Section: Code Input */}
-      <div className="left w-full ">
-        <h2 className="text-xl font-bold mb-2 text-blue-400">
-          Enter Your Code:
-        </h2>
-        <div className="border border-gray-700 rounded-lg shadow-md p-2 bg-gray-800">
+      <div className="w-full lg:w-1/2 transition-all duration-300 ease-in-out">
+        <div className="flex items-center gap-2 mb-3">
+          <Code className="w-5 h-5 text-blue-400" />
+          <h2 className="text-lg sm:text-xl font-bold text-blue-400">
+            Enter Your Code:
+          </h2>
+        </div>
+        <div className="border border-gray-700 rounded-lg shadow-md p-2 bg-gray-800 hover:border-blue-500/50 transition-colors">
           <Editor
             value={code}
             onValueChange={(code) => setCode(code)}
@@ -84,39 +88,63 @@ export default function CodeGenerator() {
             style={{
               fontFamily: '"Fira Code", monospace',
               fontSize: 14,
-              minHeight: "200px",
+              minHeight: "250px",
               backgroundColor: "#1e1e1e",
               color: "#cfcfcf",
               borderRadius: "5px",
             }}
+            className="custom-scrollbar"
           />
         </div>
         <button
           onClick={generateCode}
-          className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md shadow-md transition-all">
-          {loading ? "Analyzing..." : "Analyze Code"}
+          disabled={loading}
+          className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Analyzing...</span>
+            </>
+          ) : (
+            "Analyze Code"
+          )}
         </button>
       </div>
 
       {/* Right Section: Generated Code Output */}
-      <div className=" w-full">
-        <div className="flex justify-between items-center mb-2">
-          <h2 className="text-xl font-bold text-green-400">Generated Code:</h2>
+      <div className="w-full lg:w-1/2 transition-all duration-300 ease-in-out mt-6 lg:mt-0">
+        <div className="flex justify-between items-center mb-3">
+          <div className="flex items-center gap-2">
+            <Code className="w-5 h-5 text-green-400" />
+            <h2 className="text-lg sm:text-xl font-bold text-green-400">
+              Generated Code:
+            </h2>
+          </div>
           {generatedCode && (
             <button
               onClick={copyToClipboard}
-              className="bg-gray-700 hover:bg-gray-600 text-white text-sm px-3 py-1 rounded-md">
-              Copy
+              className="bg-gray-700 hover:bg-gray-600 text-white text-sm px-3 py-1 rounded-md flex items-center gap-1 transition-colors">
+              <Copy className="w-3.5 h-3.5" />
+              <span>Copy</span>
             </button>
           )}
         </div>
-        <div className="border border-gray-700 rounded-lg shadow-md p-4 bg-gray-800 min-h-[200px]">
-          {generatedCode ? (
-            <Markdown rehypePlugins={[rehypeHighlight]}>
+        <div className="border border-gray-700 rounded-lg shadow-md p-4 bg-gray-800 min-h-[250px] hover:border-green-500/50 transition-colors overflow-auto custom-scrollbar">
+          {loading ? (
+            <div className="flex items-center justify-center h-full">
+              <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+            </div>
+          ) : generatedCode ? (
+            <Markdown
+              rehypePlugins={[rehypeHighlight]}
+              className="prose prose-invert prose-sm sm:prose-base max-w-none">
               {generatedCode}
             </Markdown>
           ) : (
-            <p className="text-gray-500">Generated code will appear here.</p>
+            <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
+              <Code className="w-10 h-10 mb-2 opacity-50" />
+              <p>Generated code will appear here.</p>
+            </div>
           )}
         </div>
       </div>

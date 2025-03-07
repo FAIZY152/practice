@@ -58,11 +58,8 @@ export default function ImageGenerator() {
 
       setUsageCount(usageCount + 1);
 
-<<<<<<< HEAD
       
-=======
       // ✅ Step 1: Wait for Image to be Available
->>>>>>> e67d118 (changes)
       const checkImage = async (url: string, retries = 5) => {
         for (let i = 0; i < retries; i++) {
           const res = await fetch(url, { method: "HEAD" });
@@ -72,11 +69,7 @@ export default function ImageGenerator() {
         return false;
       };
 
-<<<<<<< HEAD
       
-=======
-      // ✅ Step 2: Set Image URL Only if Ready
->>>>>>> e67d118 (changes)
       const isReady = await checkImage(data.url);
       if (isReady) {
         setImageUrl(data.url);

@@ -24,7 +24,6 @@ export async function POST(req: Request) {
 
     const { userId, messages } = body;
 
-  
     if (!userId) {
       return NextResponse.json(
         { error: "User ID is required." },
@@ -38,7 +37,6 @@ export async function POST(req: Request) {
       );
     }
 
- 
     const formattedMessages = [
       { role: "user", parts: [{ text: SYSTEM_PROMPT }] }, // System instruction
       ...messages.map((msg) => ({
@@ -47,8 +45,6 @@ export async function POST(req: Request) {
       })),
     ];
 
-  
-
     const result = await model.generateContent({
       contents: formattedMessages,
     });
@@ -56,9 +52,6 @@ export async function POST(req: Request) {
     const response = await result.response;
     const botResponse = response.text() || "I don't understand.";
 
-    
-
-   
     const limitResponse = await checkApiLimit(userId);
     if (limitResponse) return limitResponse;
 

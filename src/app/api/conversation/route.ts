@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     const formattedMessages = messages.map((msg) => ({
       role: msg.role === "assistant" ? "model" : "user",
       parts:
-        msg.parts && msg.parts.length > 0 ? msg.parts : [{ text: msg.content }], // ✅ Fix here
+        msg.parts && msg.parts.length > 0 ? msg.parts : [{ text: msg.content }], 
     }));
 
     const response = await fetch(

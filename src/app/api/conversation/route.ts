@@ -21,7 +21,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // ✅ Ensure correct message structure for Gemini API
     const formattedMessages = messages.map((msg) => ({
       role: msg.role === "assistant" ? "model" : "user",
       parts:

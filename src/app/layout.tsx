@@ -40,6 +40,8 @@ export default function RootLayout({
               fetch('/codeReviwer');
               fetch('/code');
               fetch('/remover');
+              fetch('/ai-coach');
+              fetch('/funbot');
             });
           `}
         </Script>

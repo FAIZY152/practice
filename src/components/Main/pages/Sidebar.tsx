@@ -8,6 +8,8 @@ import {
   ImageIcon,
   Code,
   SearchCode,
+  Medal,
+  Smile,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -50,6 +52,19 @@ const routes = [
     icon: SearchCode,
     color: "text-yellow-600",
     href: "/codeReviwer",
+  },
+  {
+    label: "AI Coach",
+    icon: Medal,
+    color: "text-green-600",
+    href: "/ai-coach",
+  },
+
+  {
+    label: "FunBot",
+    icon: Smile,
+    color: "text-pink-500",
+    href: "/funbot",
   },
 ];
 

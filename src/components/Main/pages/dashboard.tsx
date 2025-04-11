@@ -39,6 +39,19 @@ export default function DashboardPage() {
         href: "/codeReviwer",
         color: "bg-orange-700/10",
       },
+      {
+        label: "AI Coach",
+        icon: "🏋️",
+        href: "/ai-coach",
+        color: "bg-green-600/10",
+      },
+
+      {
+        label: "FunBot",
+        icon: "😊",
+        href: "/funbot",
+        color: "bg-gradient-to-r from-purple-500/10 to-pink-500/10",
+      },
     ],
     []
   );

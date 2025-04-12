@@ -245,7 +245,7 @@ export default function FunBot() {
     "What's the latest gossip?",
     "Kya chal raha hai aajkal?",
     "Tell me a funny story",
-    "Bollywood ke baare mein kuch batao",
+    "Pakistan ke baare mein kuch batao",
     "Weekend plans kya hai?",
     "Mujhe hasao please!",
   ];
